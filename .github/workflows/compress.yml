@@ -1,0 +1,39 @@
+name: Cloud Video Compressor (1080p to x265)
+
+on:
+  workflow_dispatch:
+    inputs:
+      video_url:
+        description: 'Paste the Telegram Bot Direct Link here'
+        required: true
+
+jobs:
+  compress:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Install FFmpeg
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ffmpeg
+
+    - name: Download Video from Bot Link
+      run: |
+        # බොට් ලින්ක් එක ඩබල් ක්වෝට්ස් ඇතුළේ දමා ආරක්ෂිතව බාගැනීම
+        curl -L -o input_video.mp4 "${{ github.event.inputs.video_url }}"
+
+    - name: Compress Video using x265 (No Quality Loss)
+      run: |
+        # 1080p Full HD කොලිටි එක එලෙසම තබාගෙන ෆයිල් සයිස් එක අඩු කිරීම
+        ffmpeg -i input_video.mp4 -c:v libx265 -crf 22 -preset medium -c:a aac -b:a 128k output_compress.mp4
+
+    - name: Upload Compressed Video to GitHub Releases
+      uses: softprops/action-gh-release@v2
+      with:
+        files: output_compress.mp4
+        tag_name: compressed-film-${{ github.run_id }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
