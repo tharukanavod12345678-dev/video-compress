@@ -22,8 +22,8 @@ jobs:
 
     - name: Download Video from Bot Link
       run: |
-        # බොට් ලින්ක් එක ඩබල් ක්වෝට්ස් ඇතුළේ දමා ආරක්ෂිතව බාගැනීම
-        curl -L -o input_video.mp4 "${{ github.event.inputs.video_url }}"
+        # curl වෙනුවට wget භාවිත කර ලින්ක් එක single quotes ඇතුළේ ආරක්ෂිතව බාගැනීම
+        wget -O input_video.mp4 '${{ github.event.inputs.video_url }}'
 
     - name: Compress Video using x265 (No Quality Loss)
       run: |
