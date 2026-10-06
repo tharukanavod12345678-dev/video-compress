@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       video_url:
-        description: 'Paste the Telegram Bot Direct Link here'
+        description: 'Paste a direct video download link here'
         required: true
         type: string
 
@@ -26,21 +26,13 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y ffmpeg
 
-    - name: Download Video from Telegram Bot Link
+    - name: Download Video from Direct Link
       env:
         VIDEO_URL: ${{ inputs.video_url }}
       run: |
         set -euo pipefail
 
-        # Accept only Telegram Bot API file links and keep the bot token out of logs.
-        case "$VIDEO_URL" in
-          https://api.telegram.org/file/bot*) ;;
-          *)
-            echo "::error::Only HTTPS Telegram Bot API file links are supported."
-            exit 1
-            ;;
-        esac
-
+        # Keep the URL in an environment variable so shell characters cannot inject commands.
         if ! wget --quiet \
           --max-redirect=5 \
           --timeout=60 \
@@ -48,7 +40,7 @@ jobs:
           --waitretry=5 \
           --output-document=input_video.mp4 \
           -- "$VIDEO_URL"; then
-          echo "::error::Video download failed. Check that the Telegram file link is valid and has not expired."
+          echo "::error::Video download failed. Check that the direct video link is valid and has not expired."
           exit 1
         fi
 
